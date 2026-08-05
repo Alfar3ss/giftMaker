@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Question For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream: #FFF6ED;
+    --pink: #FFB8D2;
+    --pink-deep: #FF7FAE;
+    --lavender: #C9B6FF;
+    --mint: #A8E6CF;
+    --peach: #FFD1A9;
+    --ink: #5A3E5D;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    background: radial-gradient(circle at 20% 20%, #FFE3F0 0%, var(--cream) 55%, #FFF 100%);
+    font-family: 'Fredoka', sans-serif;
+    color: var(--ink);
+    overflow: hidden;
+  }
+  .stage{
+    position:relative;
+    width:100%; height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center;
+    padding: 24px;
+  }
+  .doodle{
+    position:absolute;
+    font-size: 34px;
+    opacity:0.55;
+    animation: float 6s ease-in-out infinite;
+    user-select:none;
+    pointer-events:none;
+  }
+  @keyframes float {
+    0%,100%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(-18px) rotate(8deg); }
+  }
+  h1{
+    font-family:'Caveat', cursive;
+    font-size: clamp(42px, 8vw, 76px);
+    font-weight:700;
+    color: var(--pink-deep);
+    margin: 0 0 6px 0;
+    text-shadow: 2px 2px 0 rgba(255,255,255,0.6);
+  }
+  .name-slot{
+    color: var(--lavender);
+  }
+  p.sub{
+    font-size: clamp(15px, 3vw, 19px);
+    max-width: 460px;
+    margin: 0 0 40px 0;
+    line-height:1.5;
+  }
+  .btn-row{
+    position:relative;
+    display:flex;
+    gap: 26px;
+    align-items:center;
+    justify-content:center;
+    height: 90px;
+  }
+  button{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size: 20px;
+    border:none;
+    border-radius: 999px;
+    padding: 16px 38px;
+    cursor:pointer;
+    box-shadow: 0 6px 0 rgba(0,0,0,0.08);
+    transition: transform 0.15s ease, background 0.2s ease;
+  }
+  button:active{ transform: translateY(3px); box-shadow: 0 2px 0 rgba(0,0,0,0.08); }
+  #yesBtn{
+    background: var(--mint);
+    color: #285C46;
+  }
+  #yesBtn:hover{ transform: scale(1.06); background:#93DABB; }
+  #noBtn{
+    background: var(--peach);
+    color: #7A4A16;
+    position: absolute;
+    left: calc(50% + 90px);
+    transition: left 0.18s ease, top 0.18s ease, transform 0.15s ease, font-size 0.2s ease;
+  }
+  .no-caption{
+    position:absolute;
+    bottom: -46px;
+    font-size:14px;
+    color: var(--ink);
+    opacity:0.7;
+    font-style:italic;
+    min-height: 18px;
+  }
+  /* ---- Reveal screen ---- */
+  .reveal{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 24px;
+  }
+  .reveal h1{
+    color: var(--pink-deep);
+  }
+  .reveal p{
+    max-width: 480px;
+    font-size: clamp(16px, 3vw, 20px);
+    line-height:1.6;
+  }
+  .big-heart{
+    font-size: 70px;
+    animation: pulse 1s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ transform: scale(1); }
+    50%{ transform: scale(1.15); }
+  }
+  .confetti{
+    position:fixed;
+    top:-20px;
+    border-radius:2px;
+    pointer-events:none;
+    animation: fall linear forwards;
+  }
+  @keyframes fall{
+    to{ transform: translateY(110vh) rotate(540deg); opacity:0.9; }
+  }
+  .replay{
+    margin-top: 22px;
+    background:none;
+    border: 2px dashed var(--lavender);
+    color: var(--lavender);
+    padding: 8px 20px;
+    box-shadow:none;
+    font-size:14px;
+  }
+  .replay:hover{ background: rgba(201,182,255,0.15); transform:none; }
+</style>
+</head>
+<body>
+
+<div class="stage" id="askScreen">
+  <div class="doodle" style="top:8%; left:10%;">💌</div>
+  <div class="doodle" style="top:14%; right:8%; animation-delay:1.5s;">✨</div>
+  <div class="doodle" style="bottom:12%; left:8%; animation-delay:2.5s;">🌸</div>
+  <div class="doodle" style="bottom:10%; right:10%; animation-delay:0.7s;">☁️</div>
+
+  <h1>Will you date <span class="name-slot">me</span>? 🥺</h1>
+  <p class="sub">Just one question. Take your time. (There is only one correct answer, but I promise it's a good one.)</p>
+
+  <div class="btn-row" id="btnRow">
+    <button id="yesBtn" onclick="showReveal()">Yes 💖</button>
+    <button id="noBtn">No</button>
+    <div class="no-caption" id="noCaption"></div>
+  </div>
+</div>
+
+<div class="reveal" id="revealScreen">
+  <div class="big-heart">🎉💘🎉</div>
+  <h1>YESSS!!</h1>
+  <p id="revealMessage">I knew you had good taste. Consider this my official application — accepted with a 100% success rate. Happy Birthday, and get ready, because now I actually have to plan a real date. No pressure on me at all. 😄❤️</p>
+  <button class="replay" onclick="location.reload()">watch me suffer again ↻</button>
+</div>
+
+<script>
+const noBtn = document.getElementById('noBtn');
+const yesBtn = document.getElementById('yesBtn');
+const btnRow = document.getElementById('btnRow');
+const noCaption = document.getElementById('noCaption');
+
+const teases = [
+  "nice try 😏",
+  "nope, try again",
+  "she said no?? unlikely",
+  "almost had it",
+  "keep dreaming",
+  "this button has trust issues",
+  "it's giving 'not today'",
+];
+
+let dodges = 0;
+let scale = 1;
+
+function moveNoButton(){
+  const rowRect = btnRow.getBoundingClientRect();
+  const btnRect = noBtn.getBoundingClientRect();
+
+  const maxX = window.innerWidth - btnRect.width - 20;
+  const maxY = window.innerHeight - btnRect.height - 20;
+
+  const newX = Math.max(20, Math.random() * maxX);
+  const newY = Math.max(20, Math.random() * maxY);
+
+  noBtn.style.position = 'fixed';
+  noBtn.style.left = newX + 'px';
+  noBtn.style.top = newY + 'px';
+
+  dodges++;
+
+  // grow the Yes button a little each time, shrink No slightly, for comedic effect
+  scale = Math.max(0.55, 1 - dodges * 0.05);
+  noBtn.style.fontSize = (20 * scale) + 'px';
+  noBtn.style.padding = (16 * scale) + 'px ' + (38 * scale) + 'px';
+
+  yesBtn.style.transform = 'scale(' + Math.min(1.6, 1 + dodges * 0.06) + ')';
+
+  noCaption.textContent = teases[Math.min(dodges - 1, teases.length - 1)];
+  noCaption.style.position = 'fixed';
+  noCaption.style.left = newX + 'px';
+  noCaption.style.top = (newY + btnRect.height + 6) + 'px';
+
+  // after enough dodges, No basically vanishes
+  if (dodges >= teases.length + 2) {
+    noBtn.style.opacity = '0';
+    noBtn.style.pointerEvents = 'none';
+    noCaption.textContent = "the 'no' button has left the chat";
+  }
+}
+
+noBtn.addEventListener('mouseenter', moveNoButton);
+noBtn.addEventListener('click', moveNoButton); // in case of touch/tap
+noBtn.addEventListener('touchstart', function(e){ e.preventDefault(); moveNoButton(); });
+
+function showReveal(){
+  document.getElementById('askScreen').style.display = 'none';
+  const reveal = document.getElementById('revealScreen');
+  reveal.style.display = 'flex';
+  launchConfetti();
+}
+
+function launchConfetti(){
+  const colors = ['#FFB8D2','#C9B6FF','#A8E6CF','#FFD1A9','#FF7FAE'];
+  for(let i=0; i<80; i++){
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      const size = 6 + Math.random()*8;
+      c.style.width = size + 'px';
+      c.style.height = size + 'px';
+      c.style.left = Math.random()*100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDuration = (2.5 + Math.random()*2) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 5000);
+    }, i * 25);
+  }
+}
+</script>
+
+</body>
+</html>
