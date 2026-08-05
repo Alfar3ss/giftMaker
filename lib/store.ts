@@ -1,29 +1,6 @@
-import { promises as fs } from "fs";
-import path from "path";
+import { nanoid } from "nanoid";
+import { supabase } from "@/lib/supabase";
 import type { GiftRecord, TemplateId } from "@/lib/types";
-
-const DATA_PATH = path.join(process.cwd(), "data", "gifts.json");
-
-async function ensureStore(): Promise<GiftRecord[]> {
-  try {
-    const raw = await fs.readFile(DATA_PATH, "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-    await fs.writeFile(DATA_PATH, JSON.stringify([], null, 2));
-    return [];
-  }
-}
-
-async function writeStore(records: GiftRecord[]): Promise<void> {
-  await fs.mkdir(path.dirname(DATA_PATH), { recursive: true });
-  await fs.writeFile(DATA_PATH, JSON.stringify(records, null, 2));
-}
-
-function makeSlug(): string {
-  return Math.random().toString(36).slice(2, 10);
-}
 
 export async function createGiftRecord(input: {
   template_id: TemplateId;
@@ -31,50 +8,73 @@ export async function createGiftRecord(input: {
   theme?: string;
   redirect_url?: string | null;
 }): Promise<GiftRecord> {
-  const records = await ensureStore();
-  let slug = makeSlug();
-  while (records.some((item) => item.slug === slug)) {
-    slug = makeSlug();
-  }
+  const slug = nanoid(6);
 
-  const gift: GiftRecord = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+  const payload = {
     slug,
     template_id: input.template_id,
-    theme: input.theme ?? "default",
     content_json: input.content_json,
+    theme: input.theme ?? "default",
     redirect_url: input.redirect_url ?? null,
-    status: "published",
-    view_count: 0,
-    interaction_json: {},
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
   };
 
-  records.push(gift);
-  await writeStore(records);
-  return gift;
+  const { data, error } = await supabase.from("gifts").insert([payload]).select().single();
+
+  if (error || !data) {
+    throw new Error(error?.message ?? "Failed to save gift record");
+  }
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    template_id: data.template_id,
+    theme: data.theme ?? "default",
+    content_json: data.content_json,
+    redirect_url: data.redirect_url ?? null,
+    status: data.status ?? "published",
+    view_count: data.view_count ?? 0,
+    interaction_json: data.interaction_json ?? {},
+    created_at: data.created_at ?? new Date().toISOString(),
+    updated_at: data.updated_at ?? data.created_at ?? new Date().toISOString(),
+  };
 }
 
 export async function getGiftBySlug(slug: string): Promise<GiftRecord | null> {
-  const records = await ensureStore();
-  return records.find((item) => item.slug === slug) ?? null;
+  const { data, error } = await supabase.from("gifts").select().eq("slug", slug).single();
+  if (error) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    slug: data.slug,
+    template_id: data.template_id,
+    theme: data.theme ?? "default",
+    content_json: data.content_json,
+    redirect_url: data.redirect_url ?? null,
+    status: data.status ?? "published",
+    view_count: data.view_count ?? 0,
+    interaction_json: data.interaction_json ?? {},
+    created_at: data.created_at ?? new Date().toISOString(),
+    updated_at: data.updated_at ?? data.created_at ?? new Date().toISOString(),
+  };
 }
 
 export async function incrementViewCount(id: string): Promise<void> {
-  const records = await ensureStore();
-  const target = records.find((item) => item.id === id);
-  if (!target) return;
-  target.view_count += 1;
-  target.updated_at = new Date().toISOString();
-  await writeStore(records);
+  try {
+    await supabase.from("gifts").update({ view_count: supabase.rpc("increment", { value: 1 }) }).eq("id", id);
+  } catch {
+    // ignore if the column or function is not present
+  }
 }
 
 export async function updateInteraction(slug: string, interaction: Record<string, unknown>): Promise<void> {
-  const records = await ensureStore();
-  const target = records.find((item) => item.slug === slug);
-  if (!target) return;
-  target.interaction_json = { ...target.interaction_json, ...interaction };
-  target.updated_at = new Date().toISOString();
-  await writeStore(records);
+  try {
+    await supabase
+      .from("gifts")
+      .update({ interaction_json: interaction })
+      .eq("slug", slug);
+  } catch {
+    // ignore if not configured
+  }
 }
