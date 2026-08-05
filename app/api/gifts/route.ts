@@ -23,7 +23,7 @@ export async function POST(request: Request) {
       redirect_url: redirectUrl,
     });
 
-    return NextResponse.json({ slug: gift.slug, url: `https://ichou.icu/giftmaker/gift/${gift.slug}` });
+    return NextResponse.json({ slug: gift.slug, url: `https://gift.ichou.icu/gift/${gift.slug}` });
   } catch {
     return NextResponse.json({ error: "Gift creation failed" }, { status: 500 });
   }

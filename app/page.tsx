@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 const routes = [
-  { label: "Generate content", href: "/giftmaker/api/gifts/generate" },
-  { label: "Create gift", href: "/giftmaker/api/gifts" },
-  { label: "Example gift page", href: "/giftmaker/gift/demo" },
+  { label: "Generate content", href: "/api/gifts/generate" },
+  { label: "Create gift", href: "/api/gifts" },
+  { label: "Example gift page", href: "/gift/demo" },
 ];
 
 export default function Home() {
