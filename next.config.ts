@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  basePath: "/giftmaker",
+  basePath: "",
   turbopack: {
     root: __dirname,
   },
