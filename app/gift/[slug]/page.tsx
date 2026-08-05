@@ -16,6 +16,12 @@ export default async function GiftPage({ params }: { params: Promise<{ slug: str
 
   if (!gift) return notFound();
 
+  // If the gift includes pre-rendered HTML, serve it directly (sanitized at generation time)
+  if (gift.html_content) {
+    void incrementViewCount(gift.id);
+    return <div dangerouslySetInnerHTML={{ __html: gift.html_content }} />;
+  }
+
   const Template = TEMPLATES[gift.template_id];
   if (!Template) return notFound();
 

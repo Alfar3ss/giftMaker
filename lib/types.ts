@@ -9,6 +9,7 @@ export interface GiftRecord {
   theme: string;
   content_json: Record<string, unknown>;
   redirect_url?: string | null;
+  html_content?: string | null;
   status: string;
   view_count: number;
   interaction_json: Record<string, unknown>;

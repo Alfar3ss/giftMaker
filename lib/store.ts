@@ -5,6 +5,7 @@ import type { GiftRecord, TemplateId } from "@/lib/types";
 export async function createGiftRecord(input: {
   template_id: TemplateId;
   content_json: Record<string, unknown>;
+  html_content?: string | null;
   theme?: string;
   redirect_url?: string | null;
 }): Promise<GiftRecord> {
@@ -14,6 +15,7 @@ export async function createGiftRecord(input: {
     slug,
     template_id: input.template_id,
     content_json: input.content_json,
+    html_content: input.html_content ?? null,
     theme: input.theme ?? "default",
     redirect_url: input.redirect_url ?? null,
   };
@@ -30,6 +32,7 @@ export async function createGiftRecord(input: {
     template_id: data.template_id,
     theme: data.theme ?? "default",
     content_json: data.content_json,
+    html_content: data.html_content ?? null,
     redirect_url: data.redirect_url ?? null,
     status: data.status ?? "published",
     view_count: data.view_count ?? 0,
